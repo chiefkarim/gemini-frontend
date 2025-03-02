@@ -6,14 +6,15 @@ interface ChatStream {
 }
 //TODO: refactor error handling
 
-const BACKEND_URI = process.env.BACKEND_URI;
+const NEXT_PUBLIC_BACKEND_URI = process.env.BACKEND_URI;
 
-if (!BACKEND_URI) {
+if (!NEXT_PUBLIC_BACKEND_URI) {
   throw new Error("Please provide BACKEND_URI in environment variable!");
 }
+
 export const chatStream = async (data: ChatStream) => {
   try {
-    const response = await fetch(BACKEND_URI, {
+    const response = await fetch(NEXT_PUBLIC_BACKEND_URI, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
