@@ -8,9 +8,9 @@ interface ChatStream {
 
 const BACKEND_URI = process.env.BACKEND_URI;
 
-if (!BACKEND_URI)
+if (!BACKEND_URI) {
   throw new Error("Please provide BACKEND_URI in environment variable!");
-
+}
 export const chatStream = async (data: ChatStream) => {
   try {
     const response = await fetch(BACKEND_URI, {

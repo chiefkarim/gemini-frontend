@@ -3,7 +3,6 @@
 import { useContext, useState } from "react";
 import { ChatContext } from "./contexts";
 import { chatStream } from "@/utils/api";
-import { Stream } from "stream";
 
 //TODO: improve form submition and reduce condition race
 // one way could be to update the ui always first and let the form submition happen in the back
