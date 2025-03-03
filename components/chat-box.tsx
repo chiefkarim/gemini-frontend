@@ -7,7 +7,7 @@ import Markdown from "react-markdown";
 
 export function ChatBox() {
   const chatHistory = useContext(ChatContext);
-  const chatBoxRef = useRef(null);
+  const chatBoxRef = useRef<HTMLDivElement>(null);
   //TODO: add transitions to the text poping in the chat box
   useEffect(() => {
     const container = chatBoxRef.current;
