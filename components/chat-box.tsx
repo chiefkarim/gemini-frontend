@@ -3,7 +3,7 @@
 import { useContext, useEffect, useRef } from "react";
 import { ChatContext } from "./contexts";
 import { chatStream } from "@/utils/api";
-import Markdown from "react-markdown";
+import { MarkdownWrapper } from "./markdown-wrapper";
 
 export function ChatBox() {
   const chatHistory = useContext(ChatContext);
@@ -77,7 +77,7 @@ export function ChatBox() {
                 </p>
               </div>
             ) : (
-              <Markdown>{i.content}</Markdown>
+              <MarkdownWrapper content={i.content} />
             )}
           </div>
         );
