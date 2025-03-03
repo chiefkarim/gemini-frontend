@@ -1,14 +1,21 @@
 "use client";
 
-import { useContext } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { ChatContext } from "./contexts";
 import { chatStream } from "@/utils/api";
+import Markdown from "react-markdown";
 
-//TODO: handle backend comunication
-//TODO: add loading indecator while user is wating for retry
 export function ChatBox() {
   const chatHistory = useContext(ChatContext);
+  const chatBoxRef = useRef(null);
   //TODO: add transitions to the text poping in the chat box
+  useEffect(() => {
+    const container = chatBoxRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+  });
+
   const clearChat = () => {
     chatHistory.updateChat([]);
   };
@@ -31,10 +38,14 @@ export function ChatBox() {
       chatHistory.setRetry(true);
     }
   };
+
   return (
-    <div className="outline-1 px-4 py-3 h-[65vh] w-[80vw] rounded">
-      <div className="flex justify-end">
-        <button onClick={clearChat} className="bg-red-400 px-2 py-1 rounded">
+    <div
+      ref={chatBoxRef}
+      className="outline-1 px-4 py-3 h-[65vh] w-[80vw] overflow-y-auto rounded"
+    >
+      <div className="flex justify-end sticky top-0 right-0">
+        <button onClick={clearChat} className="bg-red-400 px-2 py-1  rounded">
           clear Chat
         </button>
       </div>
@@ -44,10 +55,11 @@ export function ChatBox() {
       {chatHistory.chat.map((i, idx) => {
         return chatHistory.retry && idx === chatHistory.chat.length - 1 ? (
           <div key={i + "" + idx}>
-            <h3>role: {i.role}</h3>
-            <p>{i.content}</p>
+            <div className="">
+              <p className="px-5 py-2 bg-gray-200  rounded ">{i.content}</p>
+            </div>
             <p>
-              Ops something went wrong please try again!{" "}
+              Ops something went wrong please try again!
               <button
                 onClick={handleRetry}
                 className="outline-1 bg-red-200 px-2 py-1 rounded"
@@ -58,8 +70,15 @@ export function ChatBox() {
           </div>
         ) : (
           <div key={i + "" + idx}>
-            <h3>role: {i.role}</h3>
-            <p>{i.content}</p>
+            {i.role === "user" ? (
+              <div className="flex justify-end rounded">
+                <p className="font-extrabold px-5 py-2 bg-gray-200  rounded">
+                  {i.content}
+                </p>
+              </div>
+            ) : (
+              <Markdown>{i.content}</Markdown>
+            )}
           </div>
         );
       })}
