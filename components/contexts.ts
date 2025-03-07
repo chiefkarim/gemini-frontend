@@ -5,6 +5,7 @@ import { createContext } from "react";
 export interface Chat {
   role: "assistant" | "user";
   content: string;
+  name?: string;
 }
 
 //TODO: update naming to chathistory

@@ -14,7 +14,7 @@ export function ChatInput() {
   const handleUpdate = (content: string) =>
     chatHistory.updateChat((oldChat) => [
       ...oldChat,
-      { role: "user", content: content },
+      { role: "user", content: content, name: "karim" },
     ]);
   //TODO: handle the streamed response
   //TODO: refactor error handling
@@ -36,7 +36,7 @@ export function ChatInput() {
         chatHistory.setRetry(true);
         throw new Error("No reader stream found");
       }
-
+      console.log("reader");
       let resultText = "";
 
       while (true) {
@@ -45,6 +45,7 @@ export function ChatInput() {
         if (done) break;
 
         const decodedText = decoder.decode(value, { stream: true });
+        console.info(decodedText);
         resultText += decodedText;
         chatHistory.updateChat((oldChat) => [
           ...oldChat.filter((chat, index) => {

@@ -1,22 +1,21 @@
-"use client";
-
-import { ChatBox } from "@/components/chat-box";
-import { ChatContextWrapper } from "@/components/chat-context-wrapper";
-import { ChatInput } from "@/components/chat-input";
+import { ChatWrapper } from "@/components/chat-wrapper";
+import { SignInBtn } from "@/components/login-btn";
+import { getServerSession } from "next-auth";
 
 //TODO: add chat bot interface
 //TODO: add tailwind calsses formating
 //TODO: replace components with shad-cn components
+//TODO: type pageProps
 
-export default function Home() {
-  return (
-    <div className="flex h-screen w-screen justify-center content-center flex-wrap">
-      <ChatContextWrapper>
-        <div className="flex gap-2 flex-col rounded">
-          <ChatBox />
-          <ChatInput />
-        </div>
-      </ChatContextWrapper>
-    </div>
-  );
+export default async function Home() {
+  const session = await getServerSession();
+  if (session) {
+    return <ChatWrapper session={session} />;
+  } else {
+    return (
+      <div className="flex items-center w-screen h-screen justify-center content-center ">
+        <SignInBtn />
+      </div>
+    );
+  }
 }
