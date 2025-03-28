@@ -5,7 +5,7 @@ A **Next.js 13+** frontend for a chatbot, featuring authentication, markdown sup
 ## 🚀 Live Deployment
 
 You can access the live deployment here:  
-[**Gemini Frontend Chat on Vercel**](#)
+[**Gemini Frontend Chat on Vercel**](https://gemini-frontend-orcin.vercel.app/)
 
 ---
 
