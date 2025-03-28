@@ -13,7 +13,7 @@ export default async function Home() {
     return <ChatWrapper session={session} />;
   } else {
     return (
-      <div className="flex items-center w-screen h-screen justify-center content-center ">
+      <div className="flex items-center w-screen h-screen justify-center content-center">
         <SignInBtn />
       </div>
     );

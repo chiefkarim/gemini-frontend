@@ -77,7 +77,7 @@ export function ChatBox() {
                 </p>
               </div>
             ) : (
-              <MarkdownWrapper content={i.content} />
+              <MarkdownWrapper content={i.content}>{}</MarkdownWrapper>
             )}
           </div>
         );
