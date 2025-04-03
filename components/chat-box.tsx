@@ -4,6 +4,9 @@ import { useContext, useEffect, useRef } from "react";
 import { ChatContext } from "./contexts";
 import { chatStream } from "@/utils/api";
 import { MarkdownWrapper } from "./markdown-wrapper";
+import { error } from "console";
+
+//TODO: remove retry button logic
 
 export function ChatBox() {
   const chatHistory = useContext(ChatContext);
@@ -39,6 +42,21 @@ export function ChatBox() {
     }
   };
 
+  const handleCopy = (content: string) => {
+    const startIndicator = "```markdown\n";
+    const endIndicator = "```\n";
+    const startIndex = content.indexOf(startIndicator) + startIndicator.length;
+    const endIndex = content.lastIndexOf(endIndicator) - 1;
+    const markdown = content.slice(startIndex, endIndex);
+    navigator.clipboard
+      .writeText(markdown)
+      .then(() => {
+        console.log("copied successfully");
+      })
+      .catch((e) => console.error("something went wrong", e));
+    console.log("markdown", markdown);
+  };
+
   return (
     <div
       ref={chatBoxRef}
@@ -58,6 +76,7 @@ export function ChatBox() {
             <div className="">
               <p className="px-5 py-2 bg-gray-200  rounded ">{i.content}</p>
             </div>
+
             <p>
               Ops something went wrong please try again!
               <button
@@ -77,7 +96,15 @@ export function ChatBox() {
                 </p>
               </div>
             ) : (
-              <MarkdownWrapper content={i.content}>{}</MarkdownWrapper>
+              <div>
+                <MarkdownWrapper content={i.content} />
+                <button
+                  onClick={() => handleCopy(i.content)}
+                  className="outline-1 bg-green-200 px-2 py-1 rounded"
+                >
+                  Copy Readme file
+                </button>
+              </div>
             )}
           </div>
         );
