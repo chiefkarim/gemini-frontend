@@ -167,3 +167,7 @@
     **🛠 Sprint:** **4**
 
 ---
+
+### to be considered
+
+- Move the next js frontend to Cloudflare because Vercel free license is limited to non profitable projects
