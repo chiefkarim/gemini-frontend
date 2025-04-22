@@ -8,18 +8,12 @@ export interface Chat {
   name?: string;
 }
 
-//TODO: update naming to chathistory
-
 export interface ChatType {
   chat: Chat[];
   updateChat: React.Dispatch<React.SetStateAction<Chat[]>>;
-  retry: boolean;
-  setRetry: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const ChatContext = createContext<ChatType>({
   chat: [],
   updateChat: () => {},
-  retry: false,
-  setRetry: () => {},
 });

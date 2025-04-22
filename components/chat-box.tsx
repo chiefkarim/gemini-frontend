@@ -2,9 +2,7 @@
 
 import { useContext, useEffect, useRef } from "react";
 import { ChatContext } from "./contexts";
-import { chatStream } from "@/utils/api";
 import { MarkdownWrapper } from "./markdown-wrapper";
-import { error } from "console";
 
 //TODO: remove retry button logic
 
@@ -12,6 +10,8 @@ export function ChatBox() {
   const chatHistory = useContext(ChatContext);
   const chatBoxRef = useRef<HTMLDivElement>(null);
   //TODO: add transitions to the text poping in the chat box
+  //TODO: FIX not being able to scroll up while the backend is streaming the response
+
   useEffect(() => {
     const container = chatBoxRef.current;
     if (container) {
@@ -21,25 +21,6 @@ export function ChatBox() {
 
   const clearChat = () => {
     chatHistory.updateChat([]);
-  };
-  const handleRetry = async () => {
-    console.log("retrying");
-    chatHistory.setRetry(false);
-    try {
-      console.log("conent", chatHistory.chat[0]);
-      const content =
-        chatHistory.chat.length === 1
-          ? chatHistory.chat[0].content
-          : chatHistory.chat[-1].content;
-      const response = await chatStream({
-        prompt: content,
-        chatHistory: chatHistory.chat,
-      });
-      console.log("retry response", response);
-    } catch (error) {
-      console.error("chatbox level ", error);
-      chatHistory.setRetry(true);
-    }
   };
 
   const handleCopy = (content: string) => {
@@ -51,7 +32,7 @@ export function ChatBox() {
     navigator.clipboard
       .writeText(markdown)
       .then(() => {
-        console.log("copied successfully");
+        //TODO: add a toast
       })
       .catch((e) => console.error("something went wrong", e));
     console.log("markdown", markdown);
@@ -71,23 +52,7 @@ export function ChatBox() {
         <h1 className="mr-5">How may i assist you today?</h1>
       ) : null}
       {chatHistory.chat.map((i, idx) => {
-        return chatHistory.retry && idx === chatHistory.chat.length - 1 ? (
-          <div key={i + "" + idx}>
-            <div className="">
-              <p className="px-5 py-2 bg-gray-200  rounded ">{i.content}</p>
-            </div>
-
-            <p>
-              Ops something went wrong please try again!
-              <button
-                onClick={handleRetry}
-                className="outline-1 bg-red-200 px-2 py-1 rounded"
-              >
-                Retry
-              </button>
-            </p>
-          </div>
-        ) : (
+        return (
           <div key={i + "" + idx}>
             {i.role === "user" ? (
               <div className="flex justify-end rounded">
@@ -102,7 +67,7 @@ export function ChatBox() {
                   onClick={() => handleCopy(i.content)}
                   className="outline-1 bg-green-200 px-2 py-1 rounded"
                 >
-                  Copy Readme file
+                  Copy
                 </button>
               </div>
             )}

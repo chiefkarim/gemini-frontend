@@ -4,10 +4,6 @@ import { useContext, useState } from "react";
 import { ChatContext } from "./contexts";
 import { chatStream } from "@/utils/api";
 
-//TODO: improve form submition and reduce condition race
-// one way could be to update the ui always first and let the form submition happen in the back
-// impliment retry button if form submition fails for some reason
-
 export function ChatInput() {
   const [content, setContent] = useState("");
   const chatHistory = useContext(ChatContext);
@@ -33,10 +29,8 @@ export function ChatInput() {
       const decoder = new TextDecoder();
 
       if (!reader) {
-        chatHistory.setRetry(true);
         throw new Error("No reader stream found");
       }
-      console.log("reader");
       let resultText = "";
 
       while (true) {
@@ -59,11 +53,10 @@ export function ChatInput() {
         ]);
       }
     } catch (error) {
+      //TODO: show a toast when somthing goes wrong
       console.error("form submition error", error);
-      chatHistory.setRetry(true);
     }
   };
-  //FIX: when to show retry button and when to hide it
   return (
     <form
       onSubmit={(e) => {
