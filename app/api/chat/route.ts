@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     // destructure the resposne
 
     // store the response when finished in mysql database
-
+    console.log("response ", response);
     return response;
   } catch (error) {
     console.error("api level", error);
