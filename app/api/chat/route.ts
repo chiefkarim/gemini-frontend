@@ -1,3 +1,5 @@
+import { NextResponse } from "next/server";
+
 const BACKEND_URI = process.env.BACKEND_URI;
 
 export async function POST(request: Request) {
@@ -21,7 +23,10 @@ export async function POST(request: Request) {
 
     // store the response when finished in mysql database
     console.log("response ", response);
-    return response;
+    return new Response(response.body, {
+      status: response.status,
+      headers: response.headers,
+    });
   } catch (error) {
     console.error("api level", error);
     throw new Error("backend returned with error");
