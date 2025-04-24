@@ -20,12 +20,32 @@ export async function POST(request: Request) {
       }),
     });
     // destructure the resposne
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+    const reader = response.body?.getReader();
 
+    async function pump() {
+      if (!reader) {
+        writer.close();
+        return;
+      }
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        await writer.write(value);
+      }
+
+      writer.close();
+    }
+
+    pump();
     // store the response when finished in mysql database
-    console.log("response ", response);
-    return new Response(response.body, {
+    return new Response(readable, {
       status: response.status,
-      headers: response.headers,
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+      },
     });
   } catch (error) {
     console.error("api level", error);
