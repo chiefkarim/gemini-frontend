@@ -39,7 +39,6 @@ export function ChatInput() {
         if (done) break;
 
         const decodedText = decoder.decode(value, { stream: true });
-        console.info(decodedText);
         resultText += decodedText;
         chatHistory.updateChat((oldChat) => [
           ...oldChat.filter((chat, index) => {
