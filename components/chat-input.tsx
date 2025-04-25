@@ -48,7 +48,7 @@ export function ChatInput() {
             }
             return true;
           }),
-          { role: "assistant", content: resultText },
+          { role: "assistant", content: resultText, name: "Assistant" },
         ]);
       }
     } catch (error) {

@@ -1,12 +1,42 @@
-import { NextResponse } from "next/server";
+import prisma from "@/lib/db";
+import { getServerSession } from "next-auth";
 
 const BACKEND_URI = process.env.BACKEND_URI;
-
+//make sure useer is authed
+//do any sanitazation
 export async function POST(request: Request) {
   if (!BACKEND_URI && BACKEND_URI === undefined) {
     throw new Error("Please provide BACKEND_URI in environment variable!");
   }
   const data = await request.json();
+  const session = await getServerSession();
+
+  //TODO: abstract the code and refactor
+  if (!session) {
+    throw new Error("User not authenticated!");
+  }
+
+  let userId;
+  if (session.user && session.user.email) {
+    const user = await prisma.user.findUnique({
+      where: {
+        email: session.user.email,
+      },
+      select: {
+        id: true, // Only select the 'id' field
+      },
+    });
+    //TODO: REFACTOR error handleing
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    userId = user.id;
+  }
+
+  // if not return unauthorized
+
+  // check session id if not correct return bad request
 
   try {
     const response = await fetch(BACKEND_URI, {
