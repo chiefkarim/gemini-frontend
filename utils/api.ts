@@ -3,6 +3,8 @@ import type { Chat } from "@/components/contexts";
 interface ChatStream {
   prompt: string;
   chatHistory: Chat[];
+  sessionId: string;
+  name: string | "User";
 }
 
 //TODO: refactor error handling
@@ -17,6 +19,8 @@ export const chatStream = async (data: ChatStream) => {
       body: JSON.stringify({
         prompt: data.prompt,
         chatHistory: [...data.chatHistory],
+        sessionId: data.sessionId,
+        name: data.name,
       }),
     });
     return response;

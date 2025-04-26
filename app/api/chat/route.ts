@@ -12,31 +12,46 @@ export async function POST(request: Request) {
   const session = await getServerSession();
 
   //TODO: abstract the code and refactor
-  if (!session) {
-    throw new Error("User not authenticated!");
+  if (!session || !session.user?.email) {
+    return new Response("Unauthorized", { status: 401 });
   }
-
-  let userId;
-  if (session.user && session.user.email) {
-    const user = await prisma.user.findUnique({
-      where: {
-        email: session.user.email,
-      },
-      select: {
-        id: true, // Only select the 'id' field
-      },
-    });
-    //TODO: REFACTOR error handleing
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    userId = user.id;
-  }
+  //TODO: can we combine the fetch request for user id with the check for session existence in one prisma call?
+  const userId = await prisma.user.findUnique({
+    where: {
+      email: session.user.email,
+    },
+    select: {
+      id: true,
+    },
+  });
+  //TODO: REFACTOR error handleing
 
   // if not return unauthorized
+  if (!userId) {
+    return new Response("User not found", { status: 401 });
+  }
+  // check if the Chatsessionid exists in this user account
+  const { name, sessionId, prompt, chatHistory } = data;
+  const chatSession = await prisma.chatSession.findUnique({
+    where: {
+      id: sessionId,
+    },
+  });
 
-  // check session id if not correct return bad request
+  if (chatSession?.userId !== userId.id) {
+    return new Response("No chat session was found for this user", {
+      status: 404,
+    });
+  }
+  // add the user prompt to the database
+  const userMessage = await prisma.chatMessage.create({
+    data: {
+      role: "user",
+      content: prompt,
+      name: name || "User",
+      sessionId,
+    },
+  });
 
   try {
     const response = await fetch(BACKEND_URI, {
@@ -46,14 +61,14 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         prompt: data.prompt,
-        chatHistory: [...data.chatHistory],
+        chatHistory: [...chatHistory],
       }),
     });
     // destructure the resposne
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
     const reader = response.body?.getReader();
-
+    let assistantMessage = "";
     async function pump() {
       if (!reader) {
         writer.close();
@@ -63,14 +78,27 @@ export async function POST(request: Request) {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
+
+        const chunk = new TextDecoder().decode(value);
+        assistantMessage += chunk;
         await writer.write(value);
       }
 
       writer.close();
+
+      // Sauvegarder la réponse dans la base
+      //TODO: catch errors
+      const stored = await prisma.chatMessage.create({
+        data: {
+          role: "assistant",
+          content: assistantMessage,
+          name: "Assistant",
+          sessionId,
+        },
+      });
     }
 
-    pump();
-    // store the response when finished in mysql database
+    pump(); // store the response when finished in mysql database
     return new Response(readable, {
       status: response.status,
       headers: {
