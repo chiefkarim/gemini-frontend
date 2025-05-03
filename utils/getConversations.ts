@@ -14,7 +14,16 @@
  * @param  [end=10] - The end index (non-inclusive, defaults to 10).
  * @returns  A promise that resolves to the list of chat messages.
  */
-export async function getConversations() {
+interface getConversationsParams {
+  useId: string;
+  start: number;
+  end: number;
+}
+export async function getConversations({
+  useId,
+  start = 0,
+  end = 10,
+}: getConversationsParams) {
   // get the chat history for the user with the passed id starting from index and ending at index
 }
 //TODO: another protected getConversations function could be added here that authenticates and authorizes the user before fetching the conversation history
