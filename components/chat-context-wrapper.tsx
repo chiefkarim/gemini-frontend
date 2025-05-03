@@ -11,6 +11,12 @@ interface ChatContextProp {
 export function ChatContextWrapper({ children, chatHistory }: ChatContextProp) {
   const [chat, setChat] = useState<Chat[]>(chatHistory);
 
+  // gets chat history from localstorage
+  useEffect(() => {
+    const stringChat = JSON.stringify(chat);
+    localStorage.setItem("chatHistory", stringChat);
+  }, [chat]);
+
   return (
     <ChatContext.Provider value={{ chat, updateChat: setChat }}>
       {children}
