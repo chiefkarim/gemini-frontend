@@ -12,13 +12,15 @@ export function ChatInput() {
       ...oldChat,
       { role: "user", content: content, name: "karim" },
     ]);
-  //TODO: handle the streamed response
   //TODO: refactor error handling
   const handleSubmition = async () => {
     try {
+      //TODO: use the correct session id
       const response = await chatStream({
+        sessionId: "76d053a8-21ac-11f0-8b1c-862ccfb052e2",
         prompt: content,
         chatHistory: chatHistory.chat,
+        name: "User",
       });
       if (response.ok) {
         console.log("response ", response);
@@ -39,7 +41,6 @@ export function ChatInput() {
         if (done) break;
 
         const decodedText = decoder.decode(value, { stream: true });
-        console.info(decodedText);
         resultText += decodedText;
         chatHistory.updateChat((oldChat) => [
           ...oldChat.filter((chat, index) => {
@@ -49,7 +50,11 @@ export function ChatInput() {
             }
             return true;
           }),
-          { role: "assistant", content: resultText },
+          {
+            role: "assistant",
+            content: resultText,
+            name: "Assistant",
+          },
         ]);
       }
     } catch (error) {

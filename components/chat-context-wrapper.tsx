@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ChatContext, ChatType } from "./contexts";
+import { useState } from "react";
+import { ChatContext, Chat } from "./contexts";
 
-export function ChatContextWrapper({ children }: any) {
-  const [chat, setChat] = useState<ChatType["chat"]>([]);
+interface ChatContextProp {
+  children: React.ReactNode;
+  chatHistory: Chat[];
+}
 
-  // sets chat history to localstorage
-  useEffect(() => {
-    const localChat = localStorage.getItem("chatHistory");
-    setChat(() => (localChat ? JSON.parse(localChat) : []));
-  }, []);
+export function ChatContextWrapper({ children, chatHistory }: ChatContextProp) {
+  const [chat, setChat] = useState<Chat[]>(chatHistory);
 
   // gets chat history from localstorage
   useEffect(() => {

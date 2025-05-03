@@ -1,22 +1,17 @@
-import { Chat } from "@/components/contexts";
+import type { Chat } from "@/components/contexts";
 
 interface ChatStream {
   prompt: string;
   chatHistory: Chat[];
+  sessionId: string;
+  name: string | "User";
 }
+
 //TODO: refactor error handling
-
-const NEXT_PUBLIC_BACKEND_URI = process.env.NEXT_PUBLIC_BACKEND_URI;
-
-if (!NEXT_PUBLIC_BACKEND_URI) {
-  throw new Error(
-    "Please provide NEXT_PUBLIC_BACKEND_URI in environment variable!",
-  );
-}
 
 export const chatStream = async (data: ChatStream) => {
   try {
-    const response = await fetch(NEXT_PUBLIC_BACKEND_URI, {
+    const response = await fetch("/api/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -24,6 +19,8 @@ export const chatStream = async (data: ChatStream) => {
       body: JSON.stringify({
         prompt: data.prompt,
         chatHistory: [...data.chatHistory],
+        sessionId: data.sessionId,
+        name: data.name,
       }),
     });
     return response;

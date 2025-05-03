@@ -4,8 +4,6 @@ import { useContext, useEffect, useRef } from "react";
 import { ChatContext } from "./contexts";
 import { MarkdownWrapper } from "./markdown-wrapper";
 
-//TODO: remove retry button logic
-
 export function ChatBox() {
   const chatHistory = useContext(ChatContext);
   const chatBoxRef = useRef<HTMLDivElement>(null);
@@ -23,6 +21,7 @@ export function ChatBox() {
     chatHistory.updateChat([]);
   };
 
+  //TODO: refactor this and make it more readable
   const handleCopy = (content: string) => {
     const startIndicator = "```markdown\n";
     const endIndicator = "```\n";
