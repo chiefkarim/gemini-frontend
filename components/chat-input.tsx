@@ -12,7 +12,6 @@ export function ChatInput() {
       ...oldChat,
       { role: "user", content: content, name: "karim" },
     ]);
-  //TODO: handle the streamed response
   //TODO: refactor error handling
   const handleSubmition = async () => {
     try {

@@ -88,7 +88,7 @@ export async function POST(request: Request) {
 
       // Sauvegarder la réponse dans la base
       //TODO: catch errors
-      const stored = await prisma.chatMessage.create({
+      await prisma.chatMessage.create({
         data: {
           role: "assistant",
           content: assistantMessage,
