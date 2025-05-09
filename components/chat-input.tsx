@@ -1,37 +1,33 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ChatContext } from "./contexts";
 import { chatStream } from "@/utils/api";
 
 export function ChatInput() {
   const [content, setContent] = useState("");
-  const chatHistory = useContext(ChatContext);
+  const { chat, updateCurrentChat } = useContext(ChatContext);
+  const currentSessionIndex = 0; // Replace with dynamic logic if needed
+  const currentSession = chat[currentSessionIndex];
+  const currentMessages = currentSession?.messages || [];
   const handleUpdate = (content: string) => {
-    const newChat = chatHistory.chat.map((session, index) => {
-      if (index === chatHistory.chat.length - 1) {
-        return {
-          ...session,
-          messages: [
-            ...session.messages,
-            {
-              role: "user",
-              name: "User",
-              content: content,
-            },
-          ],
-        };
-      }
-      return session;
+    updateCurrentChat({
+      //TODO: UPDATE TO use the correct session id
+      sessionIndex: currentSessionIndex,
+      value: {
+        role: "user",
+        name: "User",
+        content: content,
+      },
     });
-    chatHistory.updateChat(() => newChat);
   };
-
   //TODO: refactor error handling
   const handleSubmition = async () => {
+    handleUpdate(content);
+    setContent("");
     try {
       //TODO: use the correct session id
-      const parsedChatHistory = chatHistory.chat[0].messages.map(
+      const parsedChatHistory = chat[0].messages.map(
         ({ role, content, name }) => ({
           role,
           content,
@@ -40,7 +36,7 @@ export function ChatInput() {
       );
       //TODO: update to use the current session id
       const response = await chatStream({
-        sessionId: chatHistory.chat[chatHistory.chat.length - 1].id,
+        sessionId: chat[chat.length - 1].id,
         prompt: content,
         chatHistory: parsedChatHistory,
         name: "User",
@@ -58,7 +54,14 @@ export function ChatInput() {
         throw new Error("No reader stream found");
       }
       let resultText = "";
-
+      updateCurrentChat({
+        sessionIndex: currentSessionIndex,
+        value: {
+          role: "assistant",
+          name: "Assistant",
+          content: "",
+        },
+      });
       while (true) {
         const { done, value } = await reader.read();
 
@@ -67,29 +70,14 @@ export function ChatInput() {
         const decodedText = decoder.decode(value, { stream: true });
         resultText += decodedText;
 
-        chatHistory.updateChat((prevChat) => {
-          const newChat = [...prevChat];
-          const lastSession = newChat[newChat.length - 1];
-
-          const updatedMessages = [...lastSession.messages];
-          if (
-            updatedMessages[updatedMessages.length - 1]?.role === "assistant"
-          ) {
-            updatedMessages[updatedMessages.length - 1].content = resultText;
-          } else {
-            updatedMessages.push({
-              role: "assistant",
-              name: "Assistant",
-              content: resultText,
-            });
-          }
-
-          newChat[newChat.length - 1] = {
-            ...lastSession,
-            messages: updatedMessages,
-          };
-
-          return newChat;
+        updateCurrentChat({
+          sessionIndex: currentSessionIndex,
+          value: {
+            role: "assistant",
+            name: "Assistant",
+            content: resultText,
+          },
+          messageIndex: "last",
         });
       }
     } catch (error) {
@@ -103,9 +91,7 @@ export function ChatInput() {
         e.preventDefault();
         e.stopPropagation();
 
-        handleUpdate(content);
-        setTimeout(() => handleSubmition(), 0);
-        setTimeout(() => setContent(""), 0);
+        handleSubmition();
       }}
       className="flex gap-2 py-1 rounded"
     >
