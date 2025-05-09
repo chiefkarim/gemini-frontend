@@ -5,7 +5,7 @@ import { ChatContext } from "./contexts";
 import { MarkdownWrapper } from "./markdown-wrapper";
 
 export function ChatBox() {
-  const chatHistory = useContext(ChatContext);
+  const { chat, currentChat, updateChat } = useContext(ChatContext);
   const chatBoxRef = useRef<HTMLDivElement>(null);
   //TODO: add transitions to the text poping in the chat box
   //TODO: FIX not being able to scroll up while the backend is streaming the response
@@ -18,24 +18,24 @@ export function ChatBox() {
   });
   //TODO: update clear chat to delete chat on the databse
   const clearChat = () => {
-    chatHistory.updateChat([]);
+    updateChat([]);
   };
 
   return (
     <div
       ref={chatBoxRef}
-      className="outline-1 px-4 py-3 h-[65vh] w-[80vw] overflow-y-auto rounded"
+      className="outline-1 px-4 py-3 h-[65vh]  max-w-sm sm:max-w-xl md:max-w-6xl overflow-y-auto rounded"
     >
       <div className="flex justify-end sticky top-0 right-0">
         <button onClick={clearChat} className="bg-red-400 px-2 py-1  rounded">
           clear Chat
         </button>
       </div>
-      {chatHistory.chat.length === 0 ? (
+      {chat.length === 0 ? (
         <h1 className="mr-5">How may i assist you today?</h1>
       ) : null}
-      {chatHistory.chat[0]?.messages &&
-        chatHistory.chat[0]?.messages.map((i, idx) => {
+      {chat[currentChat]?.messages &&
+        chat[currentChat]?.messages.map((i, idx) => {
           return (
             <div key={i + "" + idx}>
               {i.role === "user" ? (

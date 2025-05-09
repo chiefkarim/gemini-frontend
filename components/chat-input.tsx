@@ -93,7 +93,7 @@ export function ChatInput() {
 
         handleSubmition();
       }}
-      className="flex gap-2 py-1 rounded"
+      className="flex w-full  max-w-sm sm:max-w-xl md:max-w-6xl gap-2 py-1 rounded"
     >
       <input
         className="outline-2 bg-gray-300 flex-1 rounded"

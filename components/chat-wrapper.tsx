@@ -7,6 +7,7 @@ import { ChatInput } from "./chat-input";
 import { SignOutBtn } from "./signout-btn";
 import { Session } from "next-auth";
 import { ChatSession } from "./contexts";
+import { ChatSesssions } from "./chat-sessions";
 
 interface ChatWrapperProps {
   chatHistory: ChatSession[];
@@ -21,9 +22,10 @@ export function ChatWrapper({ session, chatHistory }: ChatWrapperProps) {
         <h1>{session.user?.name}</h1>
         <SignOutBtn />
       </div>
-      <div className="flex h-screen w-screen justify-center  flex-wrap">
+      <div className="flex  p-2">
         <ChatContextWrapper chatHistory={chatHistory}>
-          <div className="flex gap-2 flex-col rounded">
+          <ChatSesssions />
+          <div className="flex gap-2 items-center flex-1 flex-col rounded">
             <ChatBox />
             <ChatInput />
           </div>
