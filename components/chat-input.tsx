@@ -6,10 +6,8 @@ import { chatStream } from "@/utils/api";
 
 export function ChatInput() {
   const [content, setContent] = useState("");
-  const { chat, updateCurrentChat } = useContext(ChatContext);
-  const currentSessionIndex = 0; // Replace with dynamic logic if needed
-  const currentSession = chat[currentSessionIndex];
-  const currentMessages = currentSession?.messages || [];
+  const { chat, updateCurrentChat, currentChat } = useContext(ChatContext);
+  const currentSessionIndex = currentChat; // Replace with dynamic logic if needed
   const handleUpdate = (content: string) => {
     updateCurrentChat({
       //TODO: UPDATE TO use the correct session id
@@ -90,7 +88,6 @@ export function ChatInput() {
       onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();
-
         handleSubmition();
       }}
       className="flex w-full  max-w-sm sm:max-w-xl md:max-w-6xl gap-2 py-1 rounded"
