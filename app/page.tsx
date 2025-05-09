@@ -1,7 +1,8 @@
 import { ChatWrapper } from "@/components/chat-wrapper";
-import { Chat } from "@/components/contexts";
+import { ChatSession } from "@/components/contexts";
 import { SignInBtn } from "@/components/login-btn";
 import prisma from "@/lib/db";
+import { getConversations } from "@/utils/getConversations";
 import { getServerSession } from "next-auth";
 // get chat session and pass it to chat wrapper
 export default async function Home() {
@@ -16,33 +17,26 @@ export default async function Home() {
           email: session.user.email,
         },
         select: {
-          id: true, // Only select the 'id' field
+          id: true,
         },
       });
       //TODO: REFACTOR error handleing
       if (!user) {
         throw new Error("User not found");
       }
-
       userId = user.id;
     }
 
-    const result = await prisma.chatSession.findFirst({
-      where: {
-        userId: userId, // Remplace par l'ID de l'utilisateur
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        messages: true, // facultatif : pour inclure les messages de la session
-      },
-    });
-    let chatHistory: Chat[] = [];
-    if (result && result.messages !== null) {
-      //fetch the chat history from the database
-      chatHistory = result["messages"];
+    let chatHistory: ChatSession[] = [];
+    if (userId) {
+      const chatSessions = await getConversations({ userId });
+      if (chatSessions) {
+        console.log("chat sessions ", chatSessions[0]);
+        chatHistory = chatSessions;
+      }
     }
+
+    console.log("chat message ", chatHistory);
     return <ChatWrapper chatHistory={chatHistory} session={session} />;
   } else {
     return (

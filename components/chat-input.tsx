@@ -7,21 +7,45 @@ import { chatStream } from "@/utils/api";
 export function ChatInput() {
   const [content, setContent] = useState("");
   const chatHistory = useContext(ChatContext);
-  const handleUpdate = (content: string) =>
-    chatHistory.updateChat((oldChat) => [
-      ...oldChat,
-      { role: "user", content: content, name: "karim" },
-    ]);
+  const handleUpdate = (content: string) => {
+    const newChat = chatHistory.chat.map((session, index) => {
+      if (index === chatHistory.chat.length - 1) {
+        return {
+          ...session,
+          messages: [
+            ...session.messages,
+            {
+              role: "user",
+              name: "User",
+              content: content,
+            },
+          ],
+        };
+      }
+      return session;
+    });
+    chatHistory.updateChat(() => newChat);
+  };
+
   //TODO: refactor error handling
   const handleSubmition = async () => {
     try {
       //TODO: use the correct session id
+      const parsedChatHistory = chatHistory.chat[0].messages.map(
+        ({ role, content, name }) => ({
+          role,
+          content,
+          name,
+        }),
+      );
+      //TODO: update to use the current session id
       const response = await chatStream({
-        sessionId: "76d053a8-21ac-11f0-8b1c-862ccfb052e2",
+        sessionId: chatHistory.chat[chatHistory.chat.length - 1].id,
         prompt: content,
-        chatHistory: chatHistory.chat,
+        chatHistory: parsedChatHistory,
         name: "User",
       });
+
       if (response.ok) {
         console.log("response ", response);
       } else {
@@ -42,20 +66,31 @@ export function ChatInput() {
 
         const decodedText = decoder.decode(value, { stream: true });
         resultText += decodedText;
-        chatHistory.updateChat((oldChat) => [
-          ...oldChat.filter((chat, index) => {
-            if (index === oldChat.length - 1) {
-              if (chat.role === "assistant") return false;
-              return true;
-            }
-            return true;
-          }),
-          {
-            role: "assistant",
-            content: resultText,
-            name: "Assistant",
-          },
-        ]);
+
+        chatHistory.updateChat((prevChat) => {
+          const newChat = [...prevChat];
+          const lastSession = newChat[newChat.length - 1];
+
+          const updatedMessages = [...lastSession.messages];
+          if (
+            updatedMessages[updatedMessages.length - 1]?.role === "assistant"
+          ) {
+            updatedMessages[updatedMessages.length - 1].content = resultText;
+          } else {
+            updatedMessages.push({
+              role: "assistant",
+              name: "Assistant",
+              content: resultText,
+            });
+          }
+
+          newChat[newChat.length - 1] = {
+            ...lastSession,
+            messages: updatedMessages,
+          };
+
+          return newChat;
+        });
       }
     } catch (error) {
       //TODO: show a toast when somthing goes wrong
@@ -67,9 +102,10 @@ export function ChatInput() {
       onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        handleSubmition();
+
         handleUpdate(content);
-        setTimeout(() => setContent(""), 500);
+        setTimeout(() => handleSubmition(), 0);
+        setTimeout(() => setContent(""), 0);
       }}
       className="flex gap-2 py-1 rounded"
     >

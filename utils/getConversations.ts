@@ -1,3 +1,5 @@
+import prisma from "@/lib/db";
+import { Prisma } from "@prisma/client";
 // don't authenticate and only get the conversations for the user id passed in
 // this assures seperation of concerns by keeping authentication ceperate form  other tasks like fetching data
 
@@ -15,16 +17,31 @@
  * @returns  A promise that resolves to the list of chat messages.
  */
 interface getConversationsParams {
-  useId: string;
-  start: number;
-  end: number;
+  userId: string;
+  start?: number;
+  end?: number;
 }
+type ChatSessionWithMessages = Prisma.ChatSessionGetPayload<{
+  include: { messages: true };
+}>;
 export async function getConversations({
-  useId,
+  userId,
   start = 0,
   end = 10,
-}: getConversationsParams) {
+}: getConversationsParams): Promise<ChatSessionWithMessages[]> {
   // get the chat history for the user with the passed id starting from index and ending at index
+
+  //TODO: return chat sessions within the specified start and end range
+
+  const chatSessions = await prisma.chatSession.findMany({
+    where: {
+      userId: userId,
+    },
+    include: { messages: true },
+    orderBy: { createdAt: "asc" },
+  });
+  return chatSessions;
 }
+
 //TODO: another protected getConversations function could be added here that authenticates and authorizes the user before fetching the conversation history
 //TODO: limit how many messages are fetched for each conversartion

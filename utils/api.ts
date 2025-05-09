@@ -1,8 +1,12 @@
-import type { Chat } from "@/components/contexts";
+import type { ChatSession } from "@/components/contexts";
 
 interface ChatStream {
   prompt: string;
-  chatHistory: Chat[];
+  chatHistory: {
+    role: string;
+    name: string;
+    content: string;
+  }[];
   sessionId: string;
   name: string | "User";
 }

@@ -1,2 +1,3 @@
 - [] authenticated user must be able to create a new chat session to group chats and avoid context window limitations
 - [] authenticated user must be able to delete his chats for privacy and clearer chat history
+- [] incrementally load chat messages and sessions to ensure smooth user experience

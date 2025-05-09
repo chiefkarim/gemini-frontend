@@ -16,25 +16,9 @@ export function ChatBox() {
       container.scrollTop = container.scrollHeight;
     }
   });
-
+  //TODO: update clear chat to delete chat on the databse
   const clearChat = () => {
     chatHistory.updateChat([]);
-  };
-
-  //TODO: refactor this and make it more readable
-  const handleCopy = (content: string) => {
-    const startIndicator = "```markdown\n";
-    const endIndicator = "```\n";
-    const startIndex = content.indexOf(startIndicator) + startIndicator.length;
-    const endIndex = content.lastIndexOf(endIndicator) - 1;
-    const markdown = content.slice(startIndex, endIndex);
-    navigator.clipboard
-      .writeText(markdown)
-      .then(() => {
-        //TODO: add a toast
-      })
-      .catch((e) => console.error("something went wrong", e));
-    console.log("markdown", markdown);
   };
 
   return (
@@ -50,29 +34,24 @@ export function ChatBox() {
       {chatHistory.chat.length === 0 ? (
         <h1 className="mr-5">How may i assist you today?</h1>
       ) : null}
-      {chatHistory.chat.map((i, idx) => {
-        return (
-          <div key={i + "" + idx}>
-            {i.role === "user" ? (
-              <div className="flex justify-end rounded">
-                <p className="font-extrabold px-5 py-2 bg-gray-200  rounded">
-                  {i.content}
-                </p>
-              </div>
-            ) : (
-              <div>
-                <MarkdownWrapper content={i.content} />
-                <button
-                  onClick={() => handleCopy(i.content)}
-                  className="outline-1 bg-green-200 px-2 py-1 rounded"
-                >
-                  Copy
-                </button>
-              </div>
-            )}
-          </div>
-        );
-      })}
+      {chatHistory.chat[0]?.messages &&
+        chatHistory.chat[0]?.messages.map((i, idx) => {
+          return (
+            <div key={i + "" + idx}>
+              {i.role === "user" ? (
+                <div className="flex justify-end rounded">
+                  <p className="font-extrabold px-5 py-2 bg-gray-200  rounded">
+                    {i.content}
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <MarkdownWrapper content={i.content} />
+                </div>
+              )}
+            </div>
+          );
+        })}
     </div>
   );
 }

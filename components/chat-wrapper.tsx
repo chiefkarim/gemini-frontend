@@ -6,10 +6,10 @@ import { ChatContextWrapper } from "./chat-context-wrapper";
 import { ChatInput } from "./chat-input";
 import { SignOutBtn } from "./signout-btn";
 import { Session } from "next-auth";
-import { Chat } from "./contexts";
+import { ChatSession } from "./contexts";
 
 interface ChatWrapperProps {
-  chatHistory: Chat[];
+  chatHistory: ChatSession[];
   session: Session;
 }
 

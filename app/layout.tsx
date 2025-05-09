@@ -6,12 +6,6 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   title: "gemini front end",
   description: "Openai compatible gemini front end for chatbot appliccation",
@@ -25,11 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <body className={`${geistSans.variable}  antialiased`}>{children}</body>
     </html>
   );
 }

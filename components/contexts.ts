@@ -2,16 +2,23 @@
 
 import { createContext } from "react";
 
-export interface Chat {
+export interface ChatMessage {
   role: string;
+  name: string;
   content: string;
-  name: string | null;
 }
-//TODO: change naming and sync it with the backend and database naming
+
+export interface ChatSession {
+  id: string;
+  messages: Array<ChatMessage>;
+  title: string | null;
+}
+
 export interface ChatContextType {
-  chat: Chat[];
-  updateChat: React.Dispatch<React.SetStateAction<Chat[]>>;
+  chat: ChatSession[];
+  updateChat: React.Dispatch<React.SetStateAction<ChatSession[]>>;
 }
+
 //TODO: add chat history for more readability
 export const ChatContext = createContext<ChatContextType>({
   chat: [],
