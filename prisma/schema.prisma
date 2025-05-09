@@ -96,7 +96,7 @@ model ChatSession {
   id        String        @id @default(cuid())
   userId    String
   user      User          @relation(fields: [userId], references: [id])
-  title     String?
+  title     String       @default("new chat")
   messages  ChatMessage[]
   createdAt DateTime      @default(now())
   updatedAt DateTime      @default(now())

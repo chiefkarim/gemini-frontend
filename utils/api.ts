@@ -1,5 +1,3 @@
-import type { ChatSession } from "@/components/contexts";
-
 interface ChatStream {
   prompt: string;
   chatHistory: {
