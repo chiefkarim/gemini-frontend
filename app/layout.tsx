@@ -11,7 +11,6 @@ export const metadata: Metadata = {
   description: "Openai compatible gemini front end for chatbot appliccation",
 };
 
-// TODO: fix hydration error on the body tag
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -19,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={` `}>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

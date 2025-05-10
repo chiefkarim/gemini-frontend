@@ -38,7 +38,7 @@ export async function getConversations({
       userId: userId,
     },
     include: { messages: true },
-    orderBy: { createdAt: "asc" },
+    orderBy: { createdAt: "desc" },
   });
   return chatSessions;
 }

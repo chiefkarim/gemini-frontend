@@ -8,7 +8,7 @@ import { useContext } from "react";
 import { ChatContext } from "./contexts";
 
 export function ChatSesssionsToolBar() {
-  const { updateChat } = useContext(ChatContext);
+  const { updateChat, setCurrentChat, currentChat } = useContext(ChatContext);
   const handleCreateChatSession = async () => {
     try {
       const session = await createChatSession();
@@ -16,9 +16,10 @@ export function ChatSesssionsToolBar() {
         throw new Error(session.statusText);
       } else {
         updateChat((oldchat) => [
-          ...oldchat,
           session as ChatSessionWithMessages,
+          ...oldchat,
         ]);
+        setCurrentChat(0);
       }
     } catch (error) {
       console.error("session creation error" + error);

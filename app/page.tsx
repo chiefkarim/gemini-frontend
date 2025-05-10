@@ -3,7 +3,10 @@ import { ChatSession } from "@/components/contexts";
 import { SignInBtn } from "@/components/login-btn";
 import prisma from "@/lib/db";
 import { getConversations } from "@/utils/getConversations";
+
 import { getServerSession } from "next-auth";
+import { createChatSession } from "./actions/create-chat-session";
+import { ChatSessionWithMessages } from "./actions/update-chat-session";
 // get chat session and pass it to chat wrapper
 export default async function Home() {
   const session = await getServerSession();
@@ -30,13 +33,19 @@ export default async function Home() {
     let chatHistory: ChatSession[] = [];
     if (userId) {
       const chatSessions = await getConversations({ userId });
-      if (chatSessions) {
-        console.log("chat sessions ", chatSessions[0]);
+      //create new chat session if non exists
+      if (chatSessions.length === 0) {
+        const firstChat = await createChatSession();
+        if (session instanceof Response) {
+          throw new Error(session.statusText);
+        } else {
+          chatHistory.push(firstChat as ChatSessionWithMessages);
+        }
+      } else if (chatSessions) {
         chatHistory = chatSessions;
       }
     }
 
-    console.log("chat message ", chatHistory);
     return <ChatWrapper chatHistory={chatHistory} session={session} />;
   } else {
     return (

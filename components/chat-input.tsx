@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { ChatContext } from "./contexts";
 import { chatStream } from "@/utils/api";
 
@@ -24,17 +24,15 @@ export function ChatInput() {
     handleUpdate(content);
     setContent("");
     try {
-      //TODO: use the correct session id
-      const parsedChatHistory = chat[0].messages.map(
+      const parsedChatHistory = chat[currentChat].messages.map(
         ({ role, content, name }) => ({
           role,
           content,
           name,
         }),
       );
-      //TODO: update to use the current session id
       const response = await chatStream({
-        sessionId: chat[chat.length - 1].id,
+        sessionId: chat[currentChat].id,
         prompt: content,
         chatHistory: parsedChatHistory,
         name: "User",

@@ -12,12 +12,23 @@ export function ChatSesssions() {
 
       <div className="outline-1 h-full">
         {chat.map((item, index) => (
-          <div className="p-2 flex">
-            <p onClick={() => setCurrentChat(index)} key={item.title}>
+          <div
+            className={
+              "p-2 flex  justify-between" +
+              (index === currentChat ? " bg-gray-200" : "")
+            }
+            key={item.id}
+          >
+            <p
+              className="text-gray-950 cursor-default hover:cursor-pointer"
+              onClick={() => setCurrentChat(index)}
+            >
               {item.title}
             </p>
             {/* TODO: edit title funcionality */}
-            <button className="pl-1 hover:cursor-pointer">edit</button>
+            <button className="text-gray-950 outline-1 ml-2 px-2 cursor-default hover:cursor-pointer">
+              edit
+            </button>
           </div>
         ))}
       </div>
