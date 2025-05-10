@@ -6,24 +6,39 @@ import { chatStream } from "@/utils/api";
 
 export function ChatInput() {
   const [content, setContent] = useState("");
-  const chatHistory = useContext(ChatContext);
-  const handleUpdate = (content: string) =>
-    chatHistory.updateChat((oldChat) => [
-      ...oldChat,
-      { role: "user", content: content, name: "karim" },
-    ]);
+  const { chat, updateCurrentChat, currentChat } = useContext(ChatContext);
+  const currentSessionIndex = currentChat; // Replace with dynamic logic if needed
+  const handleUpdate = (content: string) => {
+    updateCurrentChat({
+      //TODO: UPDATE TO use the correct session id
+      sessionIndex: currentSessionIndex,
+      value: {
+        role: "user",
+        name: "User",
+        content: content,
+      },
+    });
+  };
   //TODO: refactor error handling
   const handleSubmition = async () => {
+    handleUpdate(content);
+    setContent("");
     try {
-      //TODO: use the correct session id
+      const parsedChatHistory = chat[currentChat].messages.map(
+        ({ role, content, name }) => ({
+          role,
+          content,
+          name,
+        }),
+      );
       const response = await chatStream({
-        sessionId: "76d053a8-21ac-11f0-8b1c-862ccfb052e2",
+        sessionId: chat[currentChat].id,
         prompt: content,
-        chatHistory: chatHistory.chat,
+        chatHistory: parsedChatHistory,
         name: "User",
       });
+
       if (response.ok) {
-        console.log("response ", response);
       } else {
         console.error("server responded with ", response);
       }
@@ -34,7 +49,14 @@ export function ChatInput() {
         throw new Error("No reader stream found");
       }
       let resultText = "";
-
+      updateCurrentChat({
+        sessionIndex: currentSessionIndex,
+        value: {
+          role: "assistant",
+          name: "Assistant",
+          content: "",
+        },
+      });
       while (true) {
         const { done, value } = await reader.read();
 
@@ -42,20 +64,16 @@ export function ChatInput() {
 
         const decodedText = decoder.decode(value, { stream: true });
         resultText += decodedText;
-        chatHistory.updateChat((oldChat) => [
-          ...oldChat.filter((chat, index) => {
-            if (index === oldChat.length - 1) {
-              if (chat.role === "assistant") return false;
-              return true;
-            }
-            return true;
-          }),
-          {
+
+        updateCurrentChat({
+          sessionIndex: currentSessionIndex,
+          value: {
             role: "assistant",
-            content: resultText,
             name: "Assistant",
+            content: resultText,
           },
-        ]);
+          messageIndex: "last",
+        });
       }
     } catch (error) {
       //TODO: show a toast when somthing goes wrong
@@ -68,10 +86,8 @@ export function ChatInput() {
         e.preventDefault();
         e.stopPropagation();
         handleSubmition();
-        handleUpdate(content);
-        setTimeout(() => setContent(""), 500);
       }}
-      className="flex gap-2 py-1 rounded"
+      className="flex w-full  max-w-sm sm:max-w-xl md:max-w-6xl gap-2 py-1 rounded"
     >
       <input
         className="outline-2 bg-gray-300 flex-1 rounded"

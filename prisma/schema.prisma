@@ -96,8 +96,8 @@ model ChatSession {
   id        String        @id @default(cuid())
   userId    String
   user      User          @relation(fields: [userId], references: [id])
-  title     String?
-  messages  ChatMessage[]
+  title     String       @default("new chat")
+  messages  ChatMessage[] 
   createdAt DateTime      @default(now())
   updatedAt DateTime      @default(now())
 
@@ -108,9 +108,9 @@ model ChatMessage {
   id        String      @id @default(cuid())
   role      String
   content   String      @db.Text
-  name      String?     @default("Karim")
+  name      String      @default("Karim")
   sessionId String
-  session   ChatSession @relation(fields: [sessionId], references: [id])
+  session   ChatSession @relation(fields: [sessionId], references: [id],onDelete:Cascade)
   createdAt DateTime    @default(now())
 
   @@index([sessionId])
