@@ -4,6 +4,7 @@ import { useContext } from "react";
 import { ChatContext } from "./contexts";
 import { ChatSesssionsToolBar } from "./chat-side-toolbar";
 import { updateChatSession } from "@/app/actions/update-chat-session";
+import { deleteChatSession } from "@/app/actions/delete-chat-session";
 
 //TODO: add loaing error success states
 export function ChatSesssions() {
@@ -25,6 +26,23 @@ export function ChatSesssions() {
       console.error("Error while editing title", error);
     }
   };
+  const handleDeleteChatSession = async (id: string, index: number) => {
+    try {
+      const response = await deleteChatSession({ id });
+      if (!response.success) {
+        throw new Error(response.message);
+      } else {
+        updateChat((oldchat) => {
+          const newchat = [...oldchat];
+          newchat.splice(index);
+          return newchat;
+        });
+      }
+    } catch (error) {
+      console.error("Error while deleting chat session", error);
+    }
+  };
+
   return (
     <div className="w-fit flex flex-col max-w-sm sm:max-w-sm  p-2">
       <ChatSesssionsToolBar />
@@ -51,8 +69,15 @@ export function ChatSesssions() {
               }
               className="text-gray-950 outline-1 ml-2 px-2 hover:cursor-pointer"
             >
-              edit
+              Edit
             </button>
+            <button
+              onClick={() => handleDeleteChatSession(item.id, index)}
+              className="text-gray-950 outline-1 ml-2 px-2 hover:cursor-pointer"
+            >
+              Delete
+            </button>
+
             <dialog
               id={item.id}
               className="backdrop:bg-black/50 p-6 rounded-xl shadow-xl w-[300px] open:flex open:items-center open:justify-center translate-x-[-50%] translate-y-[-50%] top-[50%] left-[50%]"
