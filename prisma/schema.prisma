@@ -97,7 +97,7 @@ model ChatSession {
   userId    String
   user      User          @relation(fields: [userId], references: [id])
   title     String       @default("new chat")
-  messages  ChatMessage[]
+  messages  ChatMessage[] 
   createdAt DateTime      @default(now())
   updatedAt DateTime      @default(now())
 
@@ -110,7 +110,7 @@ model ChatMessage {
   content   String      @db.Text
   name      String      @default("Karim")
   sessionId String
-  session   ChatSession @relation(fields: [sessionId], references: [id])
+  session   ChatSession @relation(fields: [sessionId], references: [id],onDelete:Cascade)
   createdAt DateTime    @default(now())
 
   @@index([sessionId])

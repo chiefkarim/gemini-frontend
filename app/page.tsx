@@ -15,38 +15,50 @@ export default async function Home() {
   if (session) {
     let userId;
     if (session.user && session.user.email) {
-      const user = await prisma.user.findUnique({
-        where: {
-          email: session.user.email,
-        },
-        select: {
-          id: true,
-        },
-      });
-      //TODO: REFACTOR error handleing
-      if (!user) {
-        throw new Error("User not found");
-      }
-      userId = user.id;
-    }
+      try {
+        const user = await prisma.user.findUnique({
+          where: {
+            email: session.user.email,
+          },
+          select: {
+            id: true,
+          },
+        });
 
-    let chatHistory: ChatSession[] = [];
-    if (userId) {
-      const chatSessions = await getConversations({ userId });
-      //create new chat session if non exists
-      if (chatSessions.length === 0) {
-        const firstChat = await createChatSession();
-        if (session instanceof Response) {
-          throw new Error(session.statusText);
-        } else {
-          chatHistory.push(firstChat as ChatSessionWithMessages);
+        if (!user) {
+          throw new Error("User not found");
         }
-      } else if (chatSessions) {
-        chatHistory = chatSessions;
-      }
-    }
 
-    return <ChatWrapper chatHistory={chatHistory} session={session} />;
+        userId = user.id;
+      } catch (error) {
+        console.error(
+          "Erreur de connexion à la base ou utilisateur introuvable :",
+          error,
+        );
+        return (
+          <div className="text-red-500">
+            Une erreur est survenue. Veuillez réessayer plus tard.
+          </div>
+        );
+      }
+      let chatHistory: ChatSession[] = [];
+      if (userId) {
+        const chatSessions = await getConversations({ userId });
+        //create new chat session if non exists
+        if (chatSessions.length === 0) {
+          const firstChat = await createChatSession();
+          if (session instanceof Response) {
+            throw new Error(session.statusText);
+          } else {
+            chatHistory.push(firstChat as ChatSessionWithMessages);
+          }
+        } else if (chatSessions) {
+          chatHistory = chatSessions;
+        }
+      }
+
+      return <ChatWrapper chatHistory={chatHistory} session={session} />;
+    }
   } else {
     return (
       <div className="flex items-center w-screen h-screen justify-center content-center">

@@ -1,47 +1,38 @@
 "use server";
+
 import prisma from "@/lib/db";
 import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
 
 const BACKEND_URI = process.env.BACKEND_URI;
-//TODO: REFACTOR authorization and getting the session and user id
-//
+
 export type ChatSessionWithMessages = Prisma.ChatSessionGetPayload<{
   include: { messages: true };
 }>;
-export async function createChatSession(): Promise<
-  ChatSessionWithMessages | Response
-> {
-  if (!BACKEND_URI && BACKEND_URI === undefined) {
-    throw new Error("Please provide BACKEND_URI in environment variable!");
+
+export async function createChatSession(): Promise<ChatSessionWithMessages> {
+  if (!BACKEND_URI) {
+    throw new Error("Missing BACKEND_URI environment variable");
   }
+
   const session = await getServerSession();
 
-  if (!session || !session.user?.email) {
-    return new Response("User not found", {
-      status: 401,
-      statusText: "User not found",
-    });
+  if (!session?.user?.email) {
+    throw new Error("Unauthorized: No user session found");
   }
 
-  const userId = await prisma.user.findUnique({
-    where: {
-      email: session.user.email,
-    },
-    select: {
-      id: true,
-    },
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { id: true },
   });
 
-  if (!userId || !userId.id) {
-    return new Response("User not found", {
-      status: 401,
-      statusText: "User not found",
-    });
+  if (!user?.id) {
+    throw new Error("User not found");
   }
+
   const newChatSession = await prisma.chatSession.create({
     data: {
-      userId: userId.id,
+      userId: user.id,
     },
     include: {
       messages: true,

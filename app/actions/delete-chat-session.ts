@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/db";
 import { getServerSession } from "next-auth";
+import { use } from "react";
 
 const BACKEND_URI = process.env.BACKEND_URI;
 
@@ -42,7 +43,6 @@ export async function deleteChatSession(request: { id: string }) {
   if (chatSession.userId !== user.id) {
     throw new Error("Forbidden: You do not own this chat session");
   }
-
   await prisma.chatSession.delete({
     where: {
       id: request.id,

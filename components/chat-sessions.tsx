@@ -13,15 +13,11 @@ export function ChatSesssions() {
   const handleEditTitle = async (idx: number, title: string, id: string) => {
     try {
       const newtitle = await updateChatSession({ id, title });
-      if (newtitle instanceof Response) {
-        throw new Error(newtitle.statusText);
-      } else {
-        updateChat((oldchat) => {
-          const newchat = [...oldchat];
-          newchat[idx].title = newtitle.title;
-          return newchat;
-        });
-      }
+      updateChat((oldchat) => {
+        const newchat = [...oldchat];
+        newchat[idx].title = newtitle.title;
+        return newchat;
+      });
     } catch (error) {
       console.error("Error while editing title", error);
     }
@@ -34,7 +30,7 @@ export function ChatSesssions() {
       } else {
         updateChat((oldchat) => {
           const newchat = [...oldchat];
-          newchat.splice(index);
+          newchat.splice(index, 1);
           return newchat;
         });
       }

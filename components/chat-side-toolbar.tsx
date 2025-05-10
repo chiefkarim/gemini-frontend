@@ -12,15 +12,8 @@ export function ChatSesssionsToolBar() {
   const handleCreateChatSession = async () => {
     try {
       const session = await createChatSession();
-      if (session instanceof Response) {
-        throw new Error(session.statusText);
-      } else {
-        updateChat((oldchat) => [
-          session as ChatSessionWithMessages,
-          ...oldchat,
-        ]);
-        setCurrentChat(0);
-      }
+      updateChat((oldchat) => [session as ChatSessionWithMessages, ...oldchat]);
+      setCurrentChat(0);
     } catch (error) {
       console.error("session creation error" + error);
     }
