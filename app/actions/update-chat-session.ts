@@ -10,22 +10,21 @@ export type ChatSessionWithMessages = Prisma.ChatSessionGetPayload<{
   include: { messages: true };
 }>;
 
-export async function updateChatSession(
-  request: Request,
-): Promise<ChatSessionWithMessages | Response> {
+export async function updateChatSession(request: {
+  id: string;
+  title: string;
+}): Promise<ChatSessionWithMessages | Response> {
   if (!BACKEND_URI && BACKEND_URI === undefined) {
     throw new Error("Please provide BACKEND_URI in environment variable!");
   }
   const session = await getServerSession();
 
-  const data = await request.json();
   if (!session || !session.user?.email) {
     return new Response("User not found", {
       status: 401,
       statusText: "User not found",
     });
   }
-
   const userId = await prisma.user.findUnique({
     where: {
       email: session.user.email,
@@ -41,12 +40,23 @@ export async function updateChatSession(
       statusText: "User not found",
     });
   }
+  const oldChatSession = await prisma.chatSession.findFirst({
+    where: {
+      id: request.id,
+    },
+  });
+  if (oldChatSession?.userId !== userId.id) {
+    return new Response("User not Authorized", {
+      status: 401,
+      statusText: "User not Authorized",
+    });
+  }
   const newChatSession = await prisma.chatSession.update({
     where: {
-      id: data.id,
+      id: request.id,
     },
     data: {
-      title: data.title,
+      title: request.title,
     },
     include: {
       messages: true,

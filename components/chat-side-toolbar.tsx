@@ -8,7 +8,7 @@ import { useContext } from "react";
 import { ChatContext } from "./contexts";
 
 export function ChatSesssionsToolBar() {
-  const { updateChat, setCurrentChat, currentChat } = useContext(ChatContext);
+  const { updateChat, setCurrentChat } = useContext(ChatContext);
   const handleCreateChatSession = async () => {
     try {
       const session = await createChatSession();
@@ -28,7 +28,7 @@ export function ChatSesssionsToolBar() {
   return (
     <div className="w-full">
       <button
-        className="p-2 hover:cursor-pointer"
+        className="p-2 outline-1 mb-2 hover:cursor-pointer"
         onClick={handleCreateChatSession}
       >
         new chat

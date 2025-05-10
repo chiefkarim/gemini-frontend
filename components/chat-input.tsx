@@ -39,7 +39,6 @@ export function ChatInput() {
       });
 
       if (response.ok) {
-        console.log("response ", response);
       } else {
         console.error("server responded with ", response);
       }
