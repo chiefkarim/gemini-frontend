@@ -23,10 +23,8 @@ export function ChatWrapper({ session, chatHistory }: ChatWrapperProps) {
     <SessionProvider session={session}>
       <ChatContextWrapper chatHistory={chatHistory}>
         <div className="flex h-screen overflow-hidden">
-          {/* Sidebar */}
           <aside className="w-[280px] border-r bg-background p-4 flex flex-col justify-between">
             <div className="space-y-4">
-              {/* User Info */}
               <Card>
                 <CardContent className="pt-6 flex flex-col items-center gap-3">
                   <Avatar className="size-16">

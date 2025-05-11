@@ -1,49 +1,50 @@
 "use client";
 
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { ChatContext } from "./contexts";
 import { MarkdownWrapper } from "./markdown-wrapper";
+import { cn } from "@/lib/utils";
 
 export function ChatBox() {
   const { chat, currentChat } = useContext(ChatContext);
   const chatBoxRef = useRef<HTMLDivElement>(null);
-  //TODO: add transitions to the text poping in the chat box
-  //TODO: FIX not being able to scroll up while the backend is streaming the response
-
-  useEffect(() => {
-    const container = chatBoxRef.current;
-    if (container) {
-      container.scrollTop = container.scrollHeight;
-    }
-  });
-  //TODO: update clear chat to delete chat on the databse
-
+  //TODO: add auto scroll to the bottom
   return (
     <div
       ref={chatBoxRef}
-      className="outline-1 px-4 py-3 h-[65vh] w-full max-w-sm sm:max-w-xl md:max-w-6xl overflow-y-auto rounded"
+      className="px-6 py-4 h-full w-full max-w-6xl overflow-y-auto rounded bg-white shadow-sm border border-gray-200"
     >
       {chat.length === 0 ? (
-        <h1 className="mr-5">How may i assist you today?</h1>
-      ) : null}
-      {chat[currentChat]?.messages &&
-        chat[currentChat]?.messages.map((i, idx) => {
-          return (
-            <div key={i + "" + idx}>
-              {i.role === "user" ? (
-                <div className="flex justify-end rounded">
-                  <p className="font-extrabold px-5 py-2 bg-gray-200  rounded">
-                    {i.content}
-                  </p>
-                </div>
+        <p className="text-gray-500 text-center italic">
+          How may I assist you today?
+        </p>
+      ) : (
+        chat[currentChat]?.messages?.map((msg, idx) => (
+          <div
+            key={idx}
+            className={cn("mb-4 flex", {
+              "justify-end": msg.role === "user",
+              "justify-start": msg.role !== "user",
+            })}
+          >
+            <div
+              className={cn(
+                "px-4 py-2 max-w-[85%] rounded-md text-sm whitespace-pre-wrap leading-relaxed",
+                {
+                  "bg-gray-100 text-gray-900": msg.role === "user",
+                  "bg-gray-50 text-gray-800": msg.role !== "user", // assistant : fond plus clair, texte doux
+                },
+              )}
+            >
+              {msg.role === "user" ? (
+                msg.content
               ) : (
-                <div>
-                  <MarkdownWrapper content={i.content} />
-                </div>
+                <MarkdownWrapper content={msg.content} />
               )}
             </div>
-          );
-        })}
+          </div>
+        ))
+      )}
     </div>
   );
 }
