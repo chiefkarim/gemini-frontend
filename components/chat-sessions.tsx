@@ -1,15 +1,30 @@
 "use client";
 
-import { useContext } from "react";
+import { useContext, useState, useTransition } from "react";
 import { ChatContext } from "./contexts";
 import { ChatSesssionsToolBar } from "./chat-side-toolbar";
 import { updateChatSession } from "@/app/actions/update-chat-session";
 import { deleteChatSession } from "@/app/actions/delete-chat-session";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { start } from "repl";
 
-//TODO: add loaing error success states
 export function ChatSesssions() {
   const { chat, updateChat, currentChat, setCurrentChat } =
     useContext(ChatContext);
+  const [openDialogId, setOpenDialogId] = useState<string | null>(null);
+
+  const [isPending, startTransition] = useTransition();
+
   const handleEditTitle = async (idx: number, title: string, id: string) => {
     try {
       const newtitle = await updateChatSession({ id, title });
@@ -22,6 +37,7 @@ export function ChatSesssions() {
       console.error("Error while editing title", error);
     }
   };
+
   const handleDeleteChatSession = async (id: string, index: number) => {
     try {
       const response = await deleteChatSession({ id });
@@ -40,90 +56,89 @@ export function ChatSesssions() {
   };
 
   return (
-    <div className="w-fit flex flex-col max-w-sm sm:max-w-sm  p-2">
+    <div className="w-full max-w-sm sm:max-w-sm p-2 flex flex-col gap-2">
       <ChatSesssionsToolBar />
-      <div className="outline-1 h-full">
-        {chat.map((item, index) => (
-          <div
-            className={
-              "p-2 flex  justify-between" +
-              (index === currentChat ? " bg-gray-200" : "")
-            }
-            key={item.id}
-          >
-            <p
-              className="text-gray-950  hover:cursor-pointer"
-              onClick={() => setCurrentChat(index)}
-            >
-              {item.title}
-            </p>
-            <button
-              onClick={() =>
-                (
-                  document.getElementById(item.id) as HTMLDialogElement
-                )?.showModal()
-              }
-              className="text-gray-950 outline-1 ml-2 px-2 hover:cursor-pointer"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => handleDeleteChatSession(item.id, index)}
-              className="text-gray-950 outline-1 ml-2 px-2 hover:cursor-pointer"
-            >
-              Delete
-            </button>
+      <div className="space-y-2">
+        {chat.map((item, index) => {
+          const isOpen = openDialogId === item.id;
 
-            <dialog
-              id={item.id}
-              className="backdrop:bg-black/50 p-6 rounded-xl shadow-xl w-[300px] open:flex open:items-center open:justify-center translate-x-[-50%] translate-y-[-50%] top-[50%] left-[50%]"
+          return (
+            <div
+              key={item.id}
+              className={`flex items-center justify-between p-3 rounded-md border ${
+                index === currentChat ? "bg-muted" : ""
+              }`}
             >
-              <form
-                method="dialog"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const form = e.currentTarget;
-                  const input = form.elements.namedItem(
-                    "newTitle",
-                  ) as HTMLInputElement;
-                  handleEditTitle(index, input.value, item.id);
-                }}
+              <p
+                className="text-sm font-medium cursor-pointer"
+                onClick={() => setCurrentChat(index)}
               >
-                <h2 className="text-lg font-semibold mb-2">Edit title</h2>
-                <input
-                  type="text"
-                  name="newTitle"
-                  className="w-full border rounded px-3 py-2 mb-4"
-                  placeholder="Nouveau titre"
-                />
-                <div className="flex justify-end space-x-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      (
-                        document.getElementById(item.id) as HTMLDialogElement
-                      )?.close()
-                    }
-                    className="text-sm text-gray-600 hover:underline"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-                    onClick={() =>
-                      (
-                        document.getElementById(item.id) as HTMLDialogElement
-                      )?.close()
-                    }
-                  >
-                    Submit
-                  </button>
-                </div>
-              </form>
-            </dialog>
-          </div>
-        ))}
+                {item.title}
+              </p>
+
+              <div className="flex items-center gap-2">
+                <Dialog
+                  open={isOpen}
+                  onOpenChange={(open) => {
+                    setOpenDialogId(open ? item.id : null);
+                  }}
+                >
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      Modifier
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const input = (
+                          e.currentTarget.elements.namedItem(
+                            "newTitle",
+                          ) as HTMLInputElement
+                        ).value;
+                        startTransition(async () => {
+                          await handleEditTitle(index, input, item.id);
+                          setOpenDialogId(null);
+                        }); // fin du chargement
+                      }}
+                    >
+                      <DialogHeader>
+                        <DialogTitle>Modifier le titre</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-2 py-4">
+                        <Label htmlFor="newTitle">Nouveau titre</Label>
+                        <Input
+                          id="newTitle"
+                          name="newTitle"
+                          defaultValue={item.title || ""}
+                          placeholder="Nouveau titre"
+                        />
+                      </div>
+                      <DialogFooter>
+                        <Button type="submit" disabled={isPending}>
+                          {isPending ? (
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            "Valider"
+                          )}
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDeleteChatSession(item.id, index)}
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

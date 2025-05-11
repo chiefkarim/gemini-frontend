@@ -1,8 +1,10 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { FormEvent, useContext, useState } from "react";
 import { ChatContext } from "./contexts";
 import { chatStream } from "@/utils/api";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 export function ChatInput() {
   const [content, setContent] = useState("");
@@ -82,21 +84,22 @@ export function ChatInput() {
   };
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={(e: FormEvent) => {
         e.preventDefault();
         e.stopPropagation();
         handleSubmition();
       }}
-      className="flex w-full  max-w-sm sm:max-w-xl md:max-w-6xl gap-2 py-1 rounded"
+      className="flex w-full max-w-sm sm:max-w-xl md:max-w-6xl gap-2 py-1"
     >
-      <input
-        className="outline-2 bg-gray-300 flex-1 rounded"
+      <Input
+        className="flex-1"
+        placeholder="Write a prompt..."
         value={content}
         onChange={(e) => setContent(e.target.value)}
       />
-      <button className="bg-amber-400 px-2 py-1 rounded" type="submit">
-        update chat
-      </button>
+      <Button type="submit" className="whitespace-nowrap">
+        Submit
+      </Button>
     </form>
   );
 }
