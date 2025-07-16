@@ -1,6 +1,6 @@
 # 🌟 Gemini Frontend Chat
 
-A **Next.js 13+** frontend for a chatbot, featuring authentication, markdown support, and syntax highlighting.
+A **Next.js 15+** frontend for a chatbot, featuring authentication, markdown support, and syntax highlighting.
 
 ## 🚀 Live Deployment
 
