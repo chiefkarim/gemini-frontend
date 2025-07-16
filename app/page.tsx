@@ -1,6 +1,6 @@
 import { ChatWrapper } from "@/components/chat-wrapper";
 import { ChatSession } from "@/components/contexts";
-import { SignInBtn } from "@/components/sign-in-button";
+import LandingPage from "@/components/landing-page";
 import prisma from "@/lib/db";
 import { getConversations } from "@/utils/getConversations";
 
@@ -59,10 +59,6 @@ export default async function Home() {
       return <ChatWrapper chatHistory={chatHistory} session={session} />;
     }
   } else {
-    return (
-      <div className="flex items-center w-screen h-screen justify-center content-center">
-        <SignInBtn />
-      </div>
-    );
+    return <LandingPage />;
   }
 }

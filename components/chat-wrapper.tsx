@@ -52,13 +52,9 @@ export function ChatWrapper({ session, chatHistory }: ChatWrapperProps) {
             </div>
           </aside>
 
-          <main className="flex-1 flex flex-col bg-muted p-4">
-            <div className="flex-1 overflow-y-auto mb-2">
-              <ChatBox />
-            </div>
-            <div className="border-t pt-2">
-              <ChatInput />
-            </div>
+          <main className="flex-1 gap-2 items-center  flex flex-col bg-muted p-4">
+            <ChatBox />
+            <ChatInput />
           </main>
         </div>
       </ChatContextWrapper>
